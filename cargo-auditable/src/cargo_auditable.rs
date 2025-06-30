@@ -1,7 +1,7 @@
 use crate::cargo_arguments::CargoArgs;
 use std::{env, process::Command};
 
-pub fn main() {
+pub fn main(skip_args: usize) {
     // set the RUSTFLAGS environment variable to inject our object and call Cargo with all the Cargo args
 
     // Cargo sets the path to itself in the `CARGO` environment variable:
@@ -11,7 +11,7 @@ pub fn main() {
     let mut command = Command::new(cargo);
     // Pass along all our arguments; we don't currently have any args specific to `cargo auditable`
     // We skip argv[0] which is the path to this binary and the first argument which is 'auditable' passed by Cargo
-    command.args(env::args_os().skip(2));
+    command.args(env::args_os().skip(skip_args));
     // Set the environment variable to use this binary as a rustc wrapper, that's when we do the real work
     // It's important that we set RUSTC_WORKSPACE_WRAPPER and not RUSTC_WRAPPER because only the former invalidates cache.
     // If we use RUSTC_WRAPPER, running `cargo auditable` will not trigger a rebuild.

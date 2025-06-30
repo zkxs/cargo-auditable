@@ -12,15 +12,13 @@ mod rustc_wrapper;
 mod sbom_precursor;
 mod target_info;
 
-use std::process::exit;
-
 /// Dispatches the call to either `cargo auditable` when invoked through cargo,
 /// or to `rustc_wrapper` when Cargo internals invoke it
 fn main() {
     let first_arg = std::env::args_os().nth(1);
     if let Some(arg) = first_arg {
         if arg == "auditable" {
-            cargo_auditable::main()
+            cargo_auditable::main(2)
         }
         // When this binary is called as a rustc wrapper, the first argument is the path to rustc:
         // https://doc.rust-lang.org/cargo/reference/environment-variables.html#environment-variables-cargo-reads
@@ -33,14 +31,9 @@ fn main() {
         else if arg == "rustc" || std::env::var_os("CARGO_AUDITABLE_ORIG_ARGS").is_some() {
             rustc_wrapper::main(&arg)
         } else {
-            shoo();
+            cargo_auditable::main(1)
         }
     } else {
-        shoo();
+        cargo_auditable::main(1)
     }
-}
-
-fn shoo() -> ! {
-    eprintln!("'cargo auditable' should be invoked through Cargo");
-    exit(1);
 }
